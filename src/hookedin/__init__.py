@@ -1,7 +1,7 @@
 
 
-__version__:str = "0.0.1"
+__version__ = "1.0.0"
 
-from .hook_manager import Hookedin, Behavior
+from .hook_manager import Behavior, get_hook_manager, get_reducer_manager
 
-__all__ = ["Hookedin","Behavior","__version__"]
+__all__ = ["get_hook_manager","Behavior","get_reducer_manager","__version__"]

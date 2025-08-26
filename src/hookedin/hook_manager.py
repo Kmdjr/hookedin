@@ -1,8 +1,8 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import asyncio
 from .reducers import get_reducer_manager
 import inspect
-from collections import defaultdict, deque
+from collections import defaultdict
 from typing import Callable, Iterable, Optional, Dict, List, Set, Any, Tuple
 import math
 import itertools
@@ -1065,29 +1065,37 @@ class Hookedin:
         loop = asyncio.get_running_loop()
         t0 = loop.time()
 
+        ok_flag = False
+        val = None
+        err_obj: Optional[BaseException] = None
+
         try:
             res = entry.callback(**kwargs)
             if inspect.iscoroutine(res):
                 res = await res
-            ok, val, err = True, res, None
-        except BaseException as err:
+            ok_flag, val, err_obj = True, res, None
+        except BaseException as exc:
+            # run on_fail if present
             try:
                 if entry.on_fail:
-                    maybe = entry.on_fail(err)
+                    maybe = entry.on_fail(exc)
                     if inspect.iscoroutine(maybe):
                         await maybe
             finally:
                 if strict:
                     raise
-            ok, val, err = False, None, err
-        elapsed = (loop.time()-t0) * 1000.0
+            ok_flag, val, err_obj = False, None, exc
+
+        elapsed = (loop.time() - t0) * 1000.0
 
         if self._metrics_sink:
             try:
-                self._metrics_sink(HookMetrics(hook_name=entry.hook_name,entry=entry,elapsed_ms=elapsed,ok=ok))
+                self._metrics_sink(HookMetrics(hook_name=entry.hook_name, entry=entry,
+                                            elapsed_ms=elapsed, ok=ok_flag))
             except Exception:
                 pass
-        return ok, val, err, elapsed
+
+        return ok_flag, val, err_obj, elapsed
     
     def _maybe_chain_payload(self, current:Any, returned:Any, ok:bool) -> Any:
         """Compute the next payload value in sequential mode.
