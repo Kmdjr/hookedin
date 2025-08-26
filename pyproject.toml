@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hookedin"
+dynamic = ["version"]
+description = "Lightweight async-friendly hook/plug-in manager with tags, priorities, and reducers."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Your Name" }
+]
+keywords = ["hooks", "plugins", "events", "asyncio", "middleware"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed"
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/hookedin"
+Issues = "https://github.com/yourname/hookedin/issues"
+
+# Pull version from src/hookedin/__init__.py -> __version__
+[tool.hatch.version]
+path = "src/hookedin/__init__.py"
+
+# We use a src/ layout. This tells Hatch which package to include.
+[tool.hatch.build.targets.wheel]
+packages = ["src/hookedin"]
+
+# Keep junk out of sdists/wheels (like your venv)
+[tool.hatch.build]
+exclude = [
+  "venv",
+  "venv/**",
+  ".git",
+  ".git/**",
+  ".DS_Store"
+]
